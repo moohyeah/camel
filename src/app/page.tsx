@@ -2,9 +2,10 @@
 
 import Head from 'next/head'
 import Script from 'next/script'
-import { Metadata } from 'next'
 
-import { connect } from "@permaweb/aoconnect";
+import { ConnectButton } from "arweave-wallet-kit";
+
+import { connect, createDataItemSigner } from "@permaweb/aoconnect";
 
 const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
   {
@@ -12,19 +13,45 @@ const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
   },
 );
 
-// export const metadata: Metadata = {
-//   title: 'puzzlegame_telegram',
-// }
+function LoginForm(){
+  return (
+    <div className='fixed-center-container'>
+      <ConnectButton
+        profileModal={false}
+        showBalance={true}
+      />
+    </div>    
+  );
+}
 
+async function testMsg() {
+  await message({
+    /*
+      The arweave TXID of the process, this will become the "target".
+      This is the process the message is ultimately sent to.
+    */
+    process: "2RLwmjFijKkoRko-9Mr6aJBQFRaV1OB3Q8IeOFNuqRI",
+    // Tags that the process will use as input.
+    tags: [
+      { name: "Your-Tag-Name-Here", value: "your-tag-value" },
+      { name: "Another-Tag", value: "another-value" },
+    ],
+    // A signer function used to build the message "signature"
+    signer: createDataItemSigner(globalThis.arweaveWallet),
+    /*
+      The "data" portion of the message.
+      If not specified a random string will be generated
+    */
+    data: "any data",
+  })
+    .then(console.log)
+    .catch(console.error);
+}
 export default function Home() {
   return (
     <>
     <Head>
       <meta charSet="utf-8" />
-      <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
-      <meta name="viewport"
-            content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true"/>
-
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="format-detection" content="telephone=no" />
@@ -33,7 +60,6 @@ export default function Home() {
       <meta name="force-rendering" content="webkit"/>
       <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
       <meta name="msapplication-tap-highlight" content="no" />
-
       <meta name="full-screen" content="yes"/>
       <meta name="x5-fullscreen" content="true"/>
       <meta name="360-fullscreen" content="true"/>
@@ -61,6 +87,7 @@ export default function Home() {
         <div id="unity-build-title">puzzlegame_telegram</div>
       </div>
     </div>
+    <LoginForm />
     <Script strategy='lazyOnload' id="game-script">
       {`
       var container = document.querySelector("#unity-container");
