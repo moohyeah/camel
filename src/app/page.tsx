@@ -2,8 +2,9 @@
 
 import Head from 'next/head'
 import Script from 'next/script'
+import { useState, useEffect, useCallback } from 'react';
 
-import { ConnectButton } from "arweave-wallet-kit";
+import { ConnectButton, useConnection, useActiveAddress} from "arweave-wallet-kit";
 
 import { connect, createDataItemSigner } from "@permaweb/aoconnect";
 
@@ -13,16 +14,7 @@ const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
   },
 );
 
-function LoginForm(){
-  return (
-    <div className='fixed-center-container'>
-      <ConnectButton
-        profileModal={false}
-        showBalance={true}
-      />
-    </div>    
-  );
-}
+
 
 async function testMsg() {
   await message({
@@ -48,6 +40,50 @@ async function testMsg() {
     .catch(console.error);
 }
 export default function Home() {
+  const [startLogin, setStartLogin] = useState(false);
+  const { connected, connect, disconnect } = useConnection();
+  const handleGameLogin = useCallback(()=>{
+    console.log("sign In")
+    if (connected) {
+      const address = useActiveAddress();
+      (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:address}))
+    } else {
+      setStartLogin(true)
+    }
+  }, []);
+
+  function LoginForm(){
+    if (!connected) {
+      return (
+        <div className='fixed-center-container'>
+          <ConnectButton
+            profileModal={false}
+            showBalance={true}
+          />
+        </div>    
+      );
+    }
+  }
+  
+  const handleGameLogout = useCallback(()=>{
+    disconnect();
+    // signOut();
+  }, []);
+
+  useEffect(()=>{
+    window.addEventListener("GameLogout", handleGameLogout);
+    return ()=> {
+      window.removeEventListener("GameLogout", handleGameLogout);
+    };
+  }, [handleGameLogout])
+
+  useEffect(()=>{
+    window.addEventListener("GameLogin", handleGameLogin);
+    return ()=> {
+      window.removeEventListener("GameLogin", handleGameLogin);
+    };
+  }, [handleGameLogin])
+
   return (
     <>
     <Head>
@@ -87,7 +123,7 @@ export default function Home() {
         <div id="unity-build-title">puzzlegame_telegram</div>
       </div>
     </div>
-    <LoginForm />
+    { startLogin && <LoginForm />}
     <Script strategy='lazyOnload' id="game-script">
       {`
       var container = document.querySelector("#unity-container");
@@ -134,7 +170,7 @@ export default function Home() {
         cacheControl: function(url) {
           // Caching enabled for .data and .bundle files. 
           // Revalidate if file is up to date before loading from cache
-          if (url.match(/\.data/) || url.match(/\.unityweb/)) {
+          if (url.match(/\.data/) || url.match(/\.unityweb/) || url.match(/\.bundle/)) {
             return "must-revalidate";
           }
   
