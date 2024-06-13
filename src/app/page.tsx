@@ -29,7 +29,7 @@ async function testMsg() {
       { name: "Another-Tag", value: "another-value" },
     ],
     // A signer function used to build the message "signature"
-    signer: createDataItemSigner(globalThis.arweaveWallet),
+    signer: createDataItemSigner((globalThis as any).arweaveWallet),
     /*
       The "data" portion of the message.
       If not specified a random string will be generated
@@ -42,15 +42,15 @@ async function testMsg() {
 export default function Home() {
   const [startLogin, setStartLogin] = useState(false);
   const { connected, connect, disconnect } = useConnection();
+  const address = useActiveAddress();
   const handleGameLogin = useCallback(()=>{
     console.log("sign In")
     if (connected) {
-      const address = useActiveAddress();
       (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:address}))
     } else {
       setStartLogin(true)
     }
-  }, []);
+  }, [useActiveAddress, connected]);
 
   function LoginForm(){
     if (!connected) {
