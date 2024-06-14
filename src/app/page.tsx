@@ -14,8 +14,6 @@ const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
   },
 );
 
-
-
 async function testMsg() {
   await message({
     /*
@@ -93,6 +91,13 @@ export default function Home() {
     };
   }, [handleGameLogin])
 
+  useEffect(()=>{
+    window.addEventListener("GameShare", handleGameLogin);
+    return ()=> {
+      window.removeEventListener("GameLogin", handleGameLogin);
+    };
+  }, [handleGameLogin])
+
   return (
     <>
     <Head>
@@ -133,6 +138,7 @@ export default function Home() {
       </div>
     </div>
     { startLogin && <LoginForm />}
+
     <Script strategy='lazyOnload' id="game-script">
       {`
       var container = document.querySelector("#unity-container");
