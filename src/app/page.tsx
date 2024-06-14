@@ -43,14 +43,18 @@ export default function Home() {
   const [startLogin, setStartLogin] = useState(false);
   const { connected, connect, disconnect } = useConnection();
   const address = useActiveAddress();
+  const [loged, setLoged] = useState(false);
+
   const handleGameLogin = useCallback(()=>{
-    console.log("sign In")
     if (connected) {
-      (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:address}))
+      console.log("sign In:" + address);
+      var nick = address?.substr(0, 3) + "..." + address?.substr(-5);
+      (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:nick}))
+      setLoged(true)
     } else {
       setStartLogin(true)
     }
-  }, [useActiveAddress, connected]);
+  }, [useActiveAddress,setStartLogin, connected, address, setLoged]);
 
   function LoginForm(){
     if (!connected) {
@@ -62,6 +66,11 @@ export default function Home() {
           />
         </div>    
       );
+    } else {
+      if(!loged && address!= null) {
+        console.log("===loged:" + address);
+        handleGameLogin();
+      }
     }
   }
   
