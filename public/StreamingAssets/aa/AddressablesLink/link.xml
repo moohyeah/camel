@@ -5,6 +5,7 @@
     <type fullname="Camelherd" preserve="all" />
     <type fullname="Cardslot" preserve="all" />
     <type fullname="ChallengevictoryPanel" preserve="all" />
+    <type fullname="DailyLogin" preserve="all" />
     <type fullname="DontDestroy" preserve="all" />
     <type fullname="Editornode" preserve="all" />
     <type fullname="FailedPanel" preserve="all" />
