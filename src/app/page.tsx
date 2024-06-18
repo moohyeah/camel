@@ -174,9 +174,9 @@ export default function Home() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/3f452fd6d366b287bc55aa271b1b7c2c.data.unityweb",
-        frameworkUrl: buildUrl + "/36d4552d6ab4d29b87fcfab5902b81de.js.unityweb",
-        codeUrl: buildUrl + "/858483da4a7b8fdcb4dfa8dfa87eb92b.wasm.unityweb",
+        dataUrl: buildUrl + "/9e9893dc64bcfe29fa853b04ddb740c6.data.unityweb",
+        frameworkUrl: buildUrl + "/7f665e13b9d2cb24af1b8c37c39b3f87.js.unityweb",
+        codeUrl: buildUrl + "/51846e16c8f990583ef2d70dbb86a16b.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",
