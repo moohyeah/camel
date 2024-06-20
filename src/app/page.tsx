@@ -69,9 +69,7 @@ export default function Home() {
   function LoginForm({}){
     if(connected && !loged && address!= null && !loging) {
       console.log("===loged:" + address);
-      useEffect(()=> {
-        handleLoginRet();
-      }, [connected, loging, setLoged]);
+      handleLoginRet();
     }  
 
     return (
