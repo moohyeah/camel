@@ -67,15 +67,24 @@ export default function Home() {
   }
 
   function LoginForm({}){
-    if(connected && !loged && address!= null && !loging) {
-      console.log("===loged:" + address);
-      handleLoginRet();
-    }  
-
-    return (
-      <div>
-      </div>
-    );
+    useEffect(()=> {
+      if(connected && !loged && address!= null && !loging) {
+        console.log("===loged:" + address);
+        handleLoginRet();
+      }   
+    })
+    
+    if(loged) {
+      return (
+        <div>
+        </div>
+      );
+    } else {
+      return (
+        <div className='modal'>
+        </div>
+      );
+    }
   }
   
   const handleGameLogout = useCallback(()=>{
@@ -143,9 +152,9 @@ export default function Home() {
         <div id="unity-build-title">puzzlegame_telegram</div>
       </div>
     </div>
+    { startLogin  && !loged && <LoginForm/>}
     <div className='fixed-center-container'>
       { startLogin && !loged && selfBtn}
-      { startLogin  && !loged && <LoginForm/>}
     </div>
     
     <Script strategy='lazyOnload' id="game-script">
@@ -183,9 +192,9 @@ export default function Home() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/8cee94541b34a8e501306e3961e4f15b.data.unityweb",
-        frameworkUrl: buildUrl + "/181e1d2bc099f048d350728ab035f83e.js.unityweb",
-        codeUrl: buildUrl + "/15397a7660a45a9ab1c85e3300617222.wasm.unityweb",
+        dataUrl: buildUrl + "/fa00bdd5a8e3501436f600a01f62f6e5.data.unityweb",
+        frameworkUrl: buildUrl + "/54ad58d55ece4646778f22916aa4229f.js.unityweb",
+        codeUrl: buildUrl + "/afa4b3855a8b34e7ce57739b45cf71a2.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",
