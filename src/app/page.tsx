@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ConnectButton, useConnection, useActiveAddress} from "arweave-wallet-kit";
 
 import { connect, createDataItemSigner } from "@permaweb/aoconnect";
+import css from 'styled-jsx/css';
 
 const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
   {
@@ -39,37 +40,44 @@ async function testMsg() {
 }
 export default function Home() {
   const [startLogin, setStartLogin] = useState(false);
+  const [loging, setLoging] = useState(false);
   const { connected, connect, disconnect } = useConnection();
   const address = useActiveAddress();
   const [loged, setLoged] = useState(false);
+  const selfBtn = <ConnectButton
+    profileModal={false}
+    showBalance={true}
+  />
 
   const handleGameLogin = useCallback(()=>{
-    if (connected) {
+    setStartLogin(true)
+  }, [setStartLogin, setLoging]);
+
+  function handleLoginRet() {
+    if (connected && !loging) {
       console.log("sign In:" + address);
       var nick = address?.substr(0, 3) + "..." + address?.substr(-5);
+      setLoging(true);
       (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:nick}))
-      setLoged(true)
-    } else {
-      setStartLogin(true)
-    }
-  }, [useActiveAddress,setStartLogin, connected, address, setLoged]);
+      // setLoged(true);
+      setTimeout(() => {
+        setLoged(true);
+      }, 3000)
+    } 
+  }
 
-  function LoginForm(){
-    if (!connected) {
-      return (
-        <div className='fixed-center-container'>
-          <ConnectButton
-            profileModal={false}
-            showBalance={true}
-          />
-        </div>    
-      );
-    } else {
-      if(!loged && address!= null) {
-        console.log("===loged:" + address);
-        handleGameLogin();
-      }
-    }
+  function LoginForm({}){
+    if(connected && !loged && address!= null && !loging) {
+      console.log("===loged:" + address);
+      useEffect(()=> {
+        handleLoginRet();
+      }, [connected, loging, setLoged]);
+    }  
+
+    return (
+      <div>
+      </div>
+    );
   }
   
   const handleGameLogout = useCallback(()=>{
@@ -91,12 +99,12 @@ export default function Home() {
     };
   }, [handleGameLogin])
 
-  useEffect(()=>{
-    window.addEventListener("GameShare", handleGameLogin);
-    return ()=> {
-      window.removeEventListener("GameLogin", handleGameLogin);
-    };
-  }, [handleGameLogin])
+  // useEffect(()=>{
+  //   window.addEventListener("GameShare", handleGameLogin);
+  //   return ()=> {
+  //     window.removeEventListener("GameShare", handleGameLogin);
+  //   };
+  // }, [handleGameLogin])
 
   return (
     <>
@@ -137,8 +145,11 @@ export default function Home() {
         <div id="unity-build-title">puzzlegame_telegram</div>
       </div>
     </div>
-    { startLogin && <LoginForm />}
-
+    <div className='fixed-center-container'>
+      { startLogin && !loged && selfBtn}
+      { startLogin  && !loged && <LoginForm/>}
+    </div>
+    
     <Script strategy='lazyOnload' id="game-script">
       {`
       var container = document.querySelector("#unity-container");
@@ -174,9 +185,9 @@ export default function Home() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/9e9893dc64bcfe29fa853b04ddb740c6.data.unityweb",
-        frameworkUrl: buildUrl + "/7f665e13b9d2cb24af1b8c37c39b3f87.js.unityweb",
-        codeUrl: buildUrl + "/51846e16c8f990583ef2d70dbb86a16b.wasm.unityweb",
+        dataUrl: buildUrl + "/8cee94541b34a8e501306e3961e4f15b.data.unityweb",
+        frameworkUrl: buildUrl + "/181e1d2bc099f048d350728ab035f83e.js.unityweb",
+        codeUrl: buildUrl + "/15397a7660a45a9ab1c85e3300617222.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",
