@@ -55,8 +55,9 @@ export default function Home() {
 
   function handleLoginRet() {
     if (connected && !loging) {
-      console.log("sign In:" + address);
+      
       var nick = address?.substr(0, 3) + "..." + address?.substr(-5);
+      console.log("sign In:" + nick);
       setLoging(true);
       (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:nick}))
       // setLoged(true);
@@ -192,9 +193,9 @@ export default function Home() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/fa00bdd5a8e3501436f600a01f62f6e5.data.unityweb",
-        frameworkUrl: buildUrl + "/54ad58d55ece4646778f22916aa4229f.js.unityweb",
-        codeUrl: buildUrl + "/afa4b3855a8b34e7ce57739b45cf71a2.wasm.unityweb",
+        dataUrl: buildUrl + "/9a76c811eeb524b01659e70f472b762f.data.unityweb",
+        frameworkUrl: buildUrl + "/caa05b4f9c99c433bb5f3bcb942f1ede.js.unityweb",
+        codeUrl: buildUrl + "/5ebdab832586cf3590092cd799a8347b.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",

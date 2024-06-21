@@ -11,6 +11,7 @@
     <type fullname="DontDestroy" preserve="all" />
     <type fullname="Editornode" preserve="all" />
     <type fullname="FailedPanel" preserve="all" />
+    <type fullname="failedTGGX" preserve="all" />
     <type fullname="GamePanel" preserve="all" />
     <type fullname="gameroot" preserve="all" />
     <type fullname="HttpManager" preserve="all" />
@@ -29,6 +30,7 @@
     <type fullname="SpiralSystem" preserve="all" />
     <type fullname="SquareBigger" preserve="all" />
     <type fullname="Squareicondate" preserve="all" />
+    <type fullname="StartPanelObject" preserve="all" />
     <type fullname="TDinit" preserve="all" />
     <type fullname="Timedhiding" preserve="all" />
     <type fullname="Timer" preserve="all" />
