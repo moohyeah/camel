@@ -9,9 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@irys/sdk": "^0.2.5",
     "@permaweb/aoconnect": "^0.0.55",
+    "arbundles": "^0.11.1",
     "arweave-wallet-kit": "^1.0.4",
+    "axios": "^1.7.2",
+    "bignumber.js": "^9.1.2",
     "next": "^14.0.1",
+    "next-absolute-url": "^1.2.2",
     "react": "^18",
     "react-dom": "^18"
   },

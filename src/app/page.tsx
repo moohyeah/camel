@@ -6,38 +6,10 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { ConnectButton, useConnection, useActiveAddress} from "arweave-wallet-kit";
 
-import { connect, createDataItemSigner } from "@permaweb/aoconnect";
-import css from 'styled-jsx/css';
+import {AoTokenBalanceDryRun, AoTokenMint, GameOver, GameStart} from "../utils/Token";
 
-const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
-  {
-    MU_URL: "https://mu.ao-testnet.xyz",
-  },
-);
+const processId = "2RLwmjFijKkoRko-9Mr6aJBQFRaV1OB3Q8IeOFNuqRI"
 
-async function testMsg() {
-  await message({
-    /*
-      The arweave TXID of the process, this will become the "target".
-      This is the process the message is ultimately sent to.
-    */
-    process: "2RLwmjFijKkoRko-9Mr6aJBQFRaV1OB3Q8IeOFNuqRI",
-    // Tags that the process will use as input.
-    tags: [
-      { name: "Your-Tag-Name-Here", value: "your-tag-value" },
-      { name: "Another-Tag", value: "another-value" },
-    ],
-    // A signer function used to build the message "signature"
-    signer: createDataItemSigner((globalThis as any).arweaveWallet),
-    /*
-      The "data" portion of the message.
-      If not specified a random string will be generated
-    */
-    data: "any data",
-  })
-    .then(console.log)
-    .catch(console.error);
-}
 export default function Home() {
   const [startLogin, setStartLogin] = useState(false);
   const [loging, setLoging] = useState(false);
@@ -47,11 +19,40 @@ export default function Home() {
   const selfBtn = <ConnectButton
     profileModal={false}
     showBalance={true}
-  />
+  />;
 
   const handleGameLogin = useCallback(()=>{
     setStartLogin(true)
   }, [setStartLogin, setLoging]);
+
+  const handleGameBegin = useCallback(()=>{
+    if (address) {
+      GameStart(processId, address);
+    }
+  }, [address]);
+
+  const handleAddScore = useCallback((evt : any)=>{
+    const score = evt.score;
+    if (score > 0) {
+      AoTokenMint((globalThis as any).arweaveWallet, processId, score);
+      syncBalance();
+    }
+  }, []);
+
+  const handleGameOver = useCallback((evt : any)=>{
+    const score = evt.score;
+    if (score > 0 && address) {
+      console.log("dddd" + score);
+      GameOver(processId, address, score);
+      syncBalance();
+    }
+  }, [address]);
+
+function testOver() {
+  if (address) {
+    GameOver(processId, address, 100);
+  }
+}
 
   function handleLoginRet() {
     if (connected && !loging) {
@@ -60,11 +61,21 @@ export default function Home() {
       console.log("sign In:" + nick);
       setLoging(true);
       (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:nick}))
+      syncBalance();
       // setLoged(true);
       setTimeout(() => {
         setLoged(true);
       }, 3000)
     } 
+  }
+
+  async function syncBalance() {
+    if (address) {
+      const AoDryRunBalance = await AoTokenBalanceDryRun(processId, address);
+      const intVal = parseInt(AoDryRunBalance);
+      (window as any).unityInstance.SendMessage("SigninManager", "OnScoreChanged", intVal)
+      console.log(typeof(AoDryRunBalance) + "," + AoDryRunBalance);
+    }
   }
 
   function LoginForm({}){
@@ -107,12 +118,19 @@ export default function Home() {
     };
   }, [handleGameLogin])
 
-  // useEffect(()=>{
-  //   window.addEventListener("GameShare", handleGameLogin);
-  //   return ()=> {
-  //     window.removeEventListener("GameShare", handleGameLogin);
-  //   };
-  // }, [handleGameLogin])
+  useEffect(()=>{
+    window.addEventListener("GameBegin", handleGameBegin);
+    return ()=> {
+      window.removeEventListener("GameBegin", handleGameBegin);
+    };
+  }, [handleGameLogin])
+
+  useEffect(()=>{
+    window.addEventListener("GameOver", handleGameOver);
+    return ()=> {
+      window.removeEventListener("GameOver", handleGameOver);
+    };
+  }, [handleGameLogin])
 
   return (
     <>
@@ -157,6 +175,9 @@ export default function Home() {
     <div className='fixed-center-container'>
       { startLogin && !loged && selfBtn}
     </div>
+
+    <button onClick={handleGameBegin}>testBegin</button>
+    <button onClick={testOver}>testOver</button>
     
     <Script strategy='lazyOnload' id="game-script">
       {`
@@ -193,9 +214,9 @@ export default function Home() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/9a76c811eeb524b01659e70f472b762f.data.unityweb",
-        frameworkUrl: buildUrl + "/caa05b4f9c99c433bb5f3bcb942f1ede.js.unityweb",
-        codeUrl: buildUrl + "/5ebdab832586cf3590092cd799a8347b.wasm.unityweb",
+        dataUrl: buildUrl + "/6b1fe16f976a5c089c275f560f3fcfbb.data.unityweb",
+        frameworkUrl: buildUrl + "/1fb7782eedaaf444975d4ea0667139d0.js.unityweb",
+        codeUrl: buildUrl + "/889d95573f823ae487b3b16040d8e804.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",

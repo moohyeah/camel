@@ -1,8 +1,10 @@
-import type { AppProps } from 'next/app';
+import App from 'next/app';
+import type { AppProps, AppContext  } from 'next/app';
 import { ArweaveWalletKit } from "arweave-wallet-kit";
-import { permission } from 'process';
 
-export default function App({ Component, pageProps }: AppProps) {
+import { getBaseUrl } from '../utils/getBaseUrl';
+
+function MyApp({ Component, pageProps }: AppProps & { baseUrl: string }) {
   return <ArweaveWalletKit
     config={{
       permissions : ['ACCESS_ADDRESS',
@@ -16,3 +18,12 @@ export default function App({ Component, pageProps }: AppProps) {
     <Component {...pageProps} />
   </ArweaveWalletKit>
 }
+
+MyApp.getInitialProps = async (appContext: AppContext) => {
+  const appProps = await App.getInitialProps(appContext);
+  const baseUrl = getBaseUrl(appContext.ctx.req);
+
+  return { ...appProps, baseUrl };
+};
+
+export default MyApp;
