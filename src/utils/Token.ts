@@ -3,7 +3,7 @@
 import { connect, createDataItemSigner }  from "@permaweb/aoconnect"
 import axios from 'axios'
 
-import { MU_URL, CU_URL, GATEWAY_URL, AoGetRecord, BalanceTimes } from './AoConnect'
+import { MU_URL, CU_URL, GATEWAY_URL, AoGetRecord, BalanceTimes, AoGetMessage} from './AoConnect'
 
 
 export const AoLoadBlueprintToken = async (currentWalletJwk: any, processTxId: string, tokenInfo: any) => {
@@ -759,7 +759,50 @@ export const AoTokenInBoxDryRun = async (TargetTxId: string) => {
     }
 }
 
-export const GameStart = async (processTxId: string, walletAd: string) => {
+export const GameStart = async (processTxId: string, currentWalletJwk: any) => {
+    try {
+        if(processTxId && processTxId.length != 43) {
+
+            return {}
+        }
+        if(typeof processTxId != 'string') {
+
+            return {}
+        }
+    
+        const { message } = connect( { MU_URL, CU_URL, GATEWAY_URL } );
+
+        const SendTokenResult = await message({
+            process: processTxId,
+            tags: [ 
+                { name: 'Action', value: 'Play' },
+                { name: 'Target', value: processTxId } 
+            ],
+            signer: createDataItemSigner(currentWalletJwk),
+        });
+        
+        if(SendTokenResult && SendTokenResult.length == 43) {
+            const MsgContent = await AoGetMessage(processTxId, SendTokenResult)
+            console.log(MsgContent);
+            return { status: 'ok', id: SendTokenResult, msg: MsgContent?.Messages };
+        }
+        else {
+            console.log(SendTokenResult);
+            return { status: 'ok', id: SendTokenResult };
+        }
+    }
+    catch(Error: any) {
+        console.error("AoTokenTransfer Error:", Error)
+        if(Error && Error.message) {
+
+            return { status: 'error', msg: Error.message };
+        }
+    }
+
+}
+
+export const GameOver = async (processTxId: string, currentWalletJwk: any, score: number, checkSum: number) => {
+
     try {
         if(processTxId && processTxId.length != 43) {
 
@@ -769,106 +812,35 @@ export const GameStart = async (processTxId: string, walletAd: string) => {
 
             return 
         }
+    
+        const { message } = connect( { MU_URL, CU_URL, GATEWAY_URL } );
 
-        const { dryrun } = connect( { MU_URL, CU_URL, GATEWAY_URL } );
-        const result = await dryrun({
-            Owner: walletAd,
+        const SendTokenResult = await message({
             process: processTxId,
-            data: null,
-            tags: [
-                { name: 'Action', value: 'Play' },
-                { name: 'Target', value: processTxId },
-                { name: 'Data-Protocol', value: 'ao' },
-                { name: 'Type', value: 'Message' },
-                { name: 'Variant', value: 'ao.TN.1' }
-            ]
-        });
-
-        console.log("GameStart");
-        console.log(result);
-
-        if(result && result.Messages && result.Messages[0] && result.Messages[0].Tags) {
-            const RS: any = {}
-            result.Messages[0].Tags.map((Item: any)=>{
-                RS[Item.name] = Item.value
-            })
-
-            return RS
-        }
-        else {
-
-            return 
-        }
-    }
-    catch(Error: any) {
-        console.error("AoTokenInfoDryRun Error:", Error)
-        if(Error && Error.message) {
-
-            return { status: 'error', msg: Error.message };
-        }
-
-        return 
-    }
-}
-
-export const GameOver = async (TargetTxId: string, walletAd: string, score: number) => {
-    try {
-        if(TargetTxId && TargetTxId.length != 43) {
-
-            return
-        }
-        if(typeof TargetTxId != 'string') {
-
-            return 
-        }
-
-        const { dryrun } = connect( { MU_URL, CU_URL, GATEWAY_URL } );
-
-        const result = await dryrun({
-            Owner: walletAd,
-            process: TargetTxId,
-            data: null,
-            tags: [
+            tags: [ 
                 { name: 'Action', value: 'Exit' },
-                { name: 'Target', value: TargetTxId },
-                { name: 'Data-Protocol', value: 'ao' },
-                { name: 'Type', value: 'Message' },
-                { name: 'Variant', value: 'ao.TN.1' },
                 { name: 'Score', value: score.toString() },
-            ]
+                { name: 'CheckSum', value: checkSum.toString() } 
+            ],
+            signer: createDataItemSigner(currentWalletJwk),
         });
-        console.log("GameOver");
-        console.log(result);
-
-        if(result && result.Messages && result.Messages[0] && result.Messages[0].Tags) {
-            const RS: any = {}
-            result.Messages[0].Tags.map((Item: any)=>{
-                RS[Item.name] = Item.value
-            })
-
-            return RS
+        
+        if(SendTokenResult && SendTokenResult.length == 43) {
+            const MsgContent = await AoGetMessage(processTxId, SendTokenResult)
+            console.log(MsgContent);
+            return { status: 'ok', id: SendTokenResult, msg: MsgContent };
         }
         else {
-
-            return 
+            console.log(SendTokenResult);
+            return { status: 'ok', id: SendTokenResult };
         }
     }
     catch(Error: any) {
-        console.error("AoTokenInfoDryRun Error:", Error)
+        console.error("AoTokenTransfer Error:", Error)
         if(Error && Error.message) {
 
             return { status: 'error', msg: Error.message };
         }
-
-        return 
     }
-}
 
-// export const GetTokenAvatar = (Logo: string) => {
-//     if(Logo && Logo.length == 43)  {
-//         return authConfig.backEndApi + "/" + Logo
-//     }
-//     else {
-//         return ''
-//     }
-// }
+}

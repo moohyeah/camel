@@ -6,13 +6,14 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { ConnectButton, useConnection, useActiveAddress} from "arweave-wallet-kit";
 
-import {AoTokenBalanceDryRun, AoTokenMint, GameOver, GameStart} from "../utils/Token";
+import {AoTokenBalanceDryRun, GameOver, GameStart} from "../utils/Token";
 
 const processId = "2RLwmjFijKkoRko-9Mr6aJBQFRaV1OB3Q8IeOFNuqRI"
 
 export default function Home() {
   const [startLogin, setStartLogin] = useState(false);
   const [loging, setLoging] = useState(false);
+  const [randoms, setRandoms] = useState<any[]>([]);
   const { connected, connect, disconnect } = useConnection();
   const address = useActiveAddress();
   const [loged, setLoged] = useState(false);
@@ -27,14 +28,25 @@ export default function Home() {
 
   const handleGameBegin = useCallback(()=>{
     if (address) {
-      GameStart(processId, address);
+      const ret = GameStart(processId, (globalThis as any).arweaveWallet);
+      ret.then(ret => {
+        console.log(ret);
+        const tags = ret?.msg[0].Tags;
+        for (let index = 0; index < tags.length; index++) {
+          const element = tags[index];
+          if (element.name == "Randoms") {
+            const arr = JSON.parse(element.value);
+            setRandoms(arr);
+            break;
+          }
+        }
+      });
     }
-  }, [address]);
+  }, [address, randoms, setRandoms]);
 
   const handleAddScore = useCallback((evt : any)=>{
     const score = evt.score;
     if (score > 0) {
-      AoTokenMint((globalThis as any).arweaveWallet, processId, score);
       syncBalance();
     }
   }, []);
@@ -42,17 +54,17 @@ export default function Home() {
   const handleGameOver = useCallback((evt : any)=>{
     const score = evt.score;
     if (score > 0 && address) {
-      console.log("dddd" + score);
-      GameOver(processId, address, score);
+      GameOver(processId, (globalThis as any).arweaveWallet, score, randoms[parseInt(score) - 1]);
       syncBalance();
     }
-  }, [address]);
+  }, [address, randoms]);
 
-function testOver() {
-  if (address) {
-    GameOver(processId, address, 100);
-  }
-}
+// function testOver() {
+//   if (address) {
+//     GameOver(processId, (globalThis as any).arweaveWallet, 100, randoms[99]);
+//     GetMyInboxMsg((globalThis as any).arweaveWallet, processId);
+//   }
+// }
 
   function handleLoginRet() {
     if (connected && !loging) {
@@ -175,9 +187,6 @@ function testOver() {
     <div className='fixed-center-container'>
       { startLogin && !loged && selfBtn}
     </div>
-
-    <button onClick={handleGameBegin}>testBegin</button>
-    <button onClick={testOver}>testOver</button>
     
     <Script strategy='lazyOnload' id="game-script">
       {`
@@ -214,9 +223,9 @@ function testOver() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/6b1fe16f976a5c089c275f560f3fcfbb.data.unityweb",
-        frameworkUrl: buildUrl + "/1fb7782eedaaf444975d4ea0667139d0.js.unityweb",
-        codeUrl: buildUrl + "/889d95573f823ae487b3b16040d8e804.wasm.unityweb",
+        dataUrl: buildUrl + "/3800b3e8744149bae648a8fa59584641.data.unityweb",
+        frameworkUrl: buildUrl + "/cb587e4df3dd85315d42f68699e373d9.js.unityweb",
+        codeUrl: buildUrl + "/222b84c089babab1e7ebcc0c0276a761.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",
