@@ -4,9 +4,9 @@ import Head from 'next/head'
 import Script from 'next/script'
 import { useState, useEffect, useCallback } from 'react';
 
-import { ConnectButton, useConnection, useActiveAddress} from "arweave-wallet-kit";
+import { ConnectButton, useConnection, useActiveAddress, usePermissions, useWalletNames} from "arweave-wallet-kit";
 
-import {AoTokenBalanceDryRun, GameOver, GameStart} from "../utils/Token";
+import {AoTokenBalanceDryRun, GameOver, GameStart, FinishTask} from "../utils/Token";
 
 const processId = "2RLwmjFijKkoRko-9Mr6aJBQFRaV1OB3Q8IeOFNuqRI"
 
@@ -16,6 +16,8 @@ export default function Home() {
   const [randoms, setRandoms] = useState<any[]>([]);
   const { connected, connect, disconnect } = useConnection();
   const address = useActiveAddress();
+  const permissions = usePermissions();
+
   const [loged, setLoged] = useState(false);
   const selfBtn = <ConnectButton
     profileModal={false}
@@ -27,50 +29,37 @@ export default function Home() {
   }, [setStartLogin, setLoging]);
 
   const handleGameBegin = useCallback(()=>{
-    if (address) {
-      const ret = GameStart(processId, (globalThis as any).arweaveWallet);
-      ret.then(ret => {
-        console.log(ret);
-        const tags = ret?.msg[0].Tags;
-        for (let index = 0; index < tags.length; index++) {
-          const element = tags[index];
-          if (element.name == "Randoms") {
-            const arr = JSON.parse(element.value);
-            setRandoms(arr);
-            break;
-          }
+    const ret = GameStart(processId, (globalThis as any).arweaveWallet);
+    ret.then(ret => {
+      const tags = ret?.msg[0].Tags;
+      for (let index = 0; index < tags.length; index++) {
+        const element = tags[index];
+        if (element.name == "Randoms") {
+          let arr = JSON.parse(element.value);
+          (window as any).randoms = arr
+          // for (let j = 0; j < arr.length; j++) {
+          //   setRandoms(preRandoms=> [...preRandoms, arr[j]]);
+          // }
+          break;
         }
-      });
-    }
-  }, [address, randoms, setRandoms]);
-
-  const handleAddScore = useCallback((evt : any)=>{
-    const score = evt.score;
-    if (score > 0) {
-      syncBalance();
-    }
-  }, []);
+      }
+    });
+  }, [randoms]);
 
   const handleGameOver = useCallback((evt : any)=>{
-    const score = evt.score;
-    if (score > 0 && address) {
-      GameOver(processId, (globalThis as any).arweaveWallet, score, randoms[parseInt(score) - 1]);
+    const score = evt.detail.score;
+    if (score > 0) {
+      const randVal =  (window as any).randoms[parseInt(score) - 1];
+      GameOver(processId, (globalThis as any).arweaveWallet, score, randVal);
       syncBalance();
     }
-  }, [address, randoms]);
-
-// function testOver() {
-//   if (address) {
-//     GameOver(processId, (globalThis as any).arweaveWallet, 100, randoms[99]);
-//     GetMyInboxMsg((globalThis as any).arweaveWallet, processId);
-//   }
-// }
+  }, [randoms]);
 
   function handleLoginRet() {
     if (connected && !loging) {
-      
       var nick = address?.substr(0, 3) + "..." + address?.substr(-5);
       console.log("sign In:" + nick);
+      console.log(permissions);
       setLoging(true);
       (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:nick}))
       syncBalance();
@@ -86,7 +75,6 @@ export default function Home() {
       const AoDryRunBalance = await AoTokenBalanceDryRun(processId, address);
       const intVal = parseInt(AoDryRunBalance);
       (window as any).unityInstance.SendMessage("SigninManager", "OnScoreChanged", intVal)
-      console.log(typeof(AoDryRunBalance) + "," + AoDryRunBalance);
     }
   }
 
@@ -113,7 +101,14 @@ export default function Home() {
   
   const handleGameLogout = useCallback(()=>{
     disconnect();
-    // signOut();
+  }, []);
+
+  const handleAddScore = useCallback((evt : any)=>{
+    const taskId = evt.detail.taskId;
+    if (taskId > 0) {
+      FinishTask(processId, (globalThis as any).arweaveWallet, taskId);
+      syncBalance();
+    }
   }, []);
 
   useEffect(()=>{
@@ -142,7 +137,14 @@ export default function Home() {
     return ()=> {
       window.removeEventListener("GameOver", handleGameOver);
     };
-  }, [handleGameLogin])
+  }, [handleGameOver])
+
+  useEffect(()=>{
+    window.addEventListener("AddScore", handleAddScore);
+    return ()=> {
+      window.removeEventListener("AddScore", handleAddScore);
+    };
+  }, [handleAddScore])
 
   return (
     <>
@@ -223,9 +225,9 @@ export default function Home() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/3800b3e8744149bae648a8fa59584641.data.unityweb",
-        frameworkUrl: buildUrl + "/cb587e4df3dd85315d42f68699e373d9.js.unityweb",
-        codeUrl: buildUrl + "/222b84c089babab1e7ebcc0c0276a761.wasm.unityweb",
+        dataUrl: buildUrl + "/56602a3ffcba043ebc293ea02a3bfdf7.data.unityweb",
+        frameworkUrl: buildUrl + "/1e41e4dc8ed79a53753422c5d2131e6c.js.unityweb",
+        codeUrl: buildUrl + "/842c7b4d66121b3fe30b5559f5ee4fbd.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",

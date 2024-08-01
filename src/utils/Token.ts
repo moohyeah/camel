@@ -842,5 +842,46 @@ export const GameOver = async (processTxId: string, currentWalletJwk: any, score
             return { status: 'error', msg: Error.message };
         }
     }
+}
 
+export const FinishTask = async (processTxId: string, currentWalletJwk: any, taskId: number) => {
+
+    try {
+        if(processTxId && processTxId.length != 43) {
+
+            return
+        }
+        if(typeof processTxId != 'string') {
+
+            return 
+        }
+    
+        const { message } = connect( { MU_URL, CU_URL, GATEWAY_URL } );
+
+        const SendTokenResult = await message({
+            process: processTxId,
+            tags: [ 
+                { name: 'Action', value: 'FinishTask' },
+                { name: 'TaskId', value: taskId.toString() },
+            ],
+            signer: createDataItemSigner(currentWalletJwk),
+        });
+        
+        if(SendTokenResult && SendTokenResult.length == 43) {
+            const MsgContent = await AoGetMessage(processTxId, SendTokenResult)
+            console.log(MsgContent);
+            return { status: 'ok', id: SendTokenResult, msg: MsgContent };
+        }
+        else {
+            console.log(SendTokenResult);
+            return { status: 'ok', id: SendTokenResult };
+        }
+    }
+    catch(Error: any) {
+        console.error("AoTokenTransfer Error:", Error)
+        if(Error && Error.message) {
+
+            return { status: 'error', msg: Error.message };
+        }
+    }
 }

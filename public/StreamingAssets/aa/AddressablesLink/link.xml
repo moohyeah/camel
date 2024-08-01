@@ -31,6 +31,8 @@
     <type fullname="SquareBigger" preserve="all" />
     <type fullname="Squareicondate" preserve="all" />
     <type fullname="StartPanelObject" preserve="all" />
+    <type fullname="TaskItemWidget" preserve="all" />
+    <type fullname="TaskProgressWidget" preserve="all" />
     <type fullname="TDinit" preserve="all" />
     <type fullname="Timedhiding" preserve="all" />
     <type fullname="Timer" preserve="all" />
@@ -39,6 +41,7 @@
     <type fullname="TransitionPanel" preserve="all" />
     <type fullname="UIRoot" preserve="all" />
     <type fullname="UISafeArea" preserve="all" />
+    <type fullname="UITaskView" preserve="all" />
     <type fullname="UsecardPanel" preserve="all" />
     <type fullname="VictoryPanel" preserve="all" />
   </assembly>

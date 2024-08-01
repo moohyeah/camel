@@ -9,7 +9,6 @@ function MyApp({ Component, pageProps }: AppProps & { baseUrl: string }) {
     config={{
       permissions : ['ACCESS_ADDRESS',
             'ACCESS_ALL_ADDRESSES',
-            'ACCESS_PUBLIC_KEY',
             'SIGN_TRANSACTION',
             'SIGNATURE'],
       ensurePermissions : true,
