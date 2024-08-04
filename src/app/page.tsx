@@ -171,8 +171,17 @@ export default function Home() {
         width: '100%',
       }}
     >
+      
       <canvas id="unity-canvas"></canvas>
-      <div id="unity-loading-bar">
+      <div id="loaderContainer">
+        <div id="loader">
+            <div className="dot"></div>
+            <div className="dot"></div>
+            <div className="dot"></div>
+        </div>
+        <div id="loadingText">Loading...</div>
+      </div>
+      {/* <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
@@ -183,56 +192,61 @@ export default function Home() {
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
         <div id="unity-build-title">puzzlegame_telegram</div>
-      </div>
+      </div> */}
     </div>
     { startLogin  && !loged && <LoginForm/>}
     <div className='fixed-center-container'>
       { startLogin && !loged && selfBtn}
     </div>
-    
     <Script strategy='lazyOnload' id="game-script">
       {`
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
+      // var loadingBar = document.querySelector("#unity-loading-bar");
+      // var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      // var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      // var warningBanner = document.querySelector("#unity-warning");
       var defaultHeight = 1280;
       var defaultWidth = 720;
       var h = defaultHeight;
       var w = defaultWidth;
 
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
+      function closeLoading() {
+        var _0x586046 = document['getElementById']('loaderContainer');
+        if (_0x586046)
+            _0x586046['remove']();
       }
+
+      // function unityShowBanner(msg, type) {
+      //   function updateBannerVisibility() {
+      //     warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      //   }
+      //   var div = document.createElement('div');
+      //   div.innerHTML = msg;
+      //   warningBanner.appendChild(div);
+      //   if (type == 'error') div.style = 'background: red; padding: 10px;';
+      //   else {
+      //     if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+      //     setTimeout(function() {
+      //       warningBanner.removeChild(div);
+      //       updateBannerVisibility();
+      //     }, 5000);
+      //   }
+      //   updateBannerVisibility();
+      // }
 
       // var buildUrl = "https://api.zkfairy.com/weblib";
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/wb.loader.js";
       var config = {
-        dataUrl: buildUrl + "/56602a3ffcba043ebc293ea02a3bfdf7.data.unityweb",
-        frameworkUrl: buildUrl + "/1e41e4dc8ed79a53753422c5d2131e6c.js.unityweb",
-        codeUrl: buildUrl + "/842c7b4d66121b3fe30b5559f5ee4fbd.wasm.unityweb",
+        dataUrl: buildUrl + "/f52289a84434df3dc9d0a4366a6c006f.data.unityweb",
+        frameworkUrl: buildUrl + "/413cbf3af2b52460361591c00cee38ab.js.unityweb",
+        codeUrl: buildUrl + "/bff85ff388c309c4f0386a7b6d865b8b.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "puzzlegame_telegram",
         productVersion: "1.0",
-        showBanner: unityShowBanner,
+        // showBanner: unityShowBanner,
         cacheControl: function(url) {
           // Caching enabled for .data and .bundle files. 
           // Revalidate if file is up to date before loading from cache
@@ -281,19 +295,23 @@ export default function Home() {
       canvas.style.width = w + "px";
       canvas.style.height = h + "px";
 
-      loadingBar.style.display = "block";
+      // loadingBar.style.display = "block";
 
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+          // progressBarFull.style.width = 100 * progress + "%";
+          console.info("progress: " + 100 * progress + "%");
         }).then((unityInstance) => {
           window.unityInstance = unityInstance
-          loadingBar.style.display = "none";
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
+          // loadingBar.style.display = "none";
+          // fullscreenButton.onclick = () => {
+          //   unityInstance.SetFullscreen(1);
+          // };
+          setTimeout(() => {
+            closeLoading();
+          }, 2000);
         }).catch((message) => {
           alert(message);
         });
