@@ -116,29 +116,13 @@ a {
   transform: translate(-50%, -50%); /* 向左和向上移动自身宽度/高度的一半 */
 }
 
-@keyframes pulse {
-  0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-  }
-  50% {
-      opacity: 0.3;
-      transform: scale(0.5);
-  }
-}
-
-@keyframes spin {
-  from {
-      transform: rotate(0deg);
-  }
-  to {
-      transform: rotate(360deg);
-  }
-}
-
 #loaderContainer {
   background-color: beige;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #d523c6) 0 0/300% 300%;
+  background-image: url("../../public/TemplateData/mainbg.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
   position: absolute;
   top: 0;
   left: 0;
@@ -159,22 +143,22 @@ a {
   animation: spin 2s linear infinite;
 }
 
-.dot {
-  width: 20px;
-  height: 20px;
-  background-color: #23a6d5;
-  border-radius: 50%;
-  animation: pulse 1s ease-in-out infinite;
+#logo {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: auto;
 }
 
-.dot:nth-child(2) {
-  animation-delay: 0.3s;
-  background-color: #23d5ab;
-}
-
-.dot:nth-child(3) {
-  animation-delay: 0.6s;
-  background-color: #ee7752;
+#loading {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: auto;
 }
 
 #loadingText {
@@ -183,3 +167,11 @@ a {
   font-size: 16px;
   color: #fff;
 }
+
+#game-container {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+

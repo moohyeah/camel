@@ -25,6 +25,7 @@ export default function Home() {
   />;
 
   const handleGameLogin = useCallback(()=>{
+    console.log("login???")
     setStartLogin(true)
   }, [setStartLogin, setLoging]);
 
@@ -35,11 +36,9 @@ export default function Home() {
       for (let index = 0; index < tags.length; index++) {
         const element = tags[index];
         if (element.name == "Randoms") {
-          let arr = JSON.parse(element.value);
-          (window as any).randoms = arr
-          // for (let j = 0; j < arr.length; j++) {
-          //   setRandoms(preRandoms=> [...preRandoms, arr[j]]);
-          // }
+          // let arr = JSON.parse(element.value);
+          // console.log(`game start: ${element.value}`);
+          (window as any).unityInstance.SendMessage("SigninManager", "OnGameStart", element.value)
           break;
         }
       }
@@ -49,21 +48,19 @@ export default function Home() {
   const handleGameOver = useCallback((evt : any)=>{
     const score = evt.detail.score;
     if (score > 0) {
-      const randVal =  (window as any).randoms[parseInt(score) - 1];
-      GameOver(processId, (globalThis as any).arweaveWallet, score, randVal);
+      GameOver(processId, (globalThis as any).arweaveWallet, score, evt.detail.checkSum);
       syncBalance();
     }
   }, [randoms]);
 
   function handleLoginRet() {
     if (connected && !loging) {
-      var nick = address?.substr(0, 3) + "..." + address?.substr(-5);
+      var nick = `${address?.substr(0, 3)}...${address?.substr(-5)}`;
       console.log("sign In:" + nick);
       console.log(permissions);
       setLoging(true);
-      (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:nick}))
+      (window as any).unityInstance.SendMessage("SigninManager", "OnPlatformLoginMsg", JSON.stringify({id:address, username:nick, channel:"ao"}))
       syncBalance();
-      // setLoged(true);
       setTimeout(() => {
         setLoged(true);
       }, 3000)
@@ -140,9 +137,9 @@ export default function Home() {
   }, [handleGameOver])
 
   useEffect(()=>{
-    window.addEventListener("AddScore", handleAddScore);
+    window.addEventListener("FinishTask", handleAddScore);
     return ()=> {
-      window.removeEventListener("AddScore", handleAddScore);
+      window.removeEventListener("FinishTask", handleAddScore);
     };
   }, [handleAddScore])
 
@@ -153,7 +150,6 @@ export default function Home() {
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="format-detection" content="telephone=no" />
-
       <meta name="renderer" content="webkit"/>
       <meta name="force-rendering" content="webkit"/>
       <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -163,36 +159,18 @@ export default function Home() {
       <meta name="360-fullscreen" content="true"/>
       <link rel="shortcut icon" href="TemplateData/favicon.ico" />
     </Head>
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        height: '100%',
-        width: '100%',
-      }}
-    >
-      
+    <div id="game-container">
       <canvas id="unity-canvas"></canvas>
       <div id="loaderContainer">
-        <div id="loader">
-            <div className="dot"></div>
-            <div className="dot"></div>
-            <div className="dot"></div>
-        </div>
-        <div id="loadingText">Loading...</div>
-      </div>
-      {/* <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+        <img src="./TemplateData/03.gif" id="logo"/>
+        <img src="./TemplateData/loading.gif" id="loading"/>
+        <div id="unity-loading-bar">
+          <div id="unity-webgl-logo"></div>
+          <div id="unity-progress-bar-empty">
+            <div id="unity-progress-bar-full" />
+          </div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer" style= {{display : "none"}}>
-        <div id="unity-webgl-logo"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">puzzlegame_telegram</div>
-      </div> */}
     </div>
     { startLogin  && !loged && <LoginForm/>}
     <div className='fixed-center-container'>
@@ -200,57 +178,37 @@ export default function Home() {
     </div>
     <Script strategy='lazyOnload' id="game-script">
       {`
-      var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
-      // var loadingBar = document.querySelector("#unity-loading-bar");
-      // var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      // var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      // var warningBanner = document.querySelector("#unity-warning");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+
       var defaultHeight = 1280;
       var defaultWidth = 720;
       var h = defaultHeight;
       var w = defaultWidth;
 
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+
       function closeLoading() {
-        var _0x586046 = document['getElementById']('loaderContainer');
-        if (_0x586046)
-            _0x586046['remove']();
+        var loaderContainer = document.getElementById('loaderContainer');
+        if (loaderContainer)
+          loaderContainer.remove();
       }
 
-      // function unityShowBanner(msg, type) {
-      //   function updateBannerVisibility() {
-      //     warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-      //   }
-      //   var div = document.createElement('div');
-      //   div.innerHTML = msg;
-      //   warningBanner.appendChild(div);
-      //   if (type == 'error') div.style = 'background: red; padding: 10px;';
-      //   else {
-      //     if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-      //     setTimeout(function() {
-      //       warningBanner.removeChild(div);
-      //       updateBannerVisibility();
-      //     }, 5000);
-      //   }
-      //   updateBannerVisibility();
-      // }
-
-      // var buildUrl = "https://api.zkfairy.com/weblib";
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/wb.loader.js";
+      var loaderUrl = buildUrl + "/8b13ac280e9fffae9d25d21ee297d34d.loader.js";
       var config = {
-        dataUrl: buildUrl + "/f52289a84434df3dc9d0a4366a6c006f.data.unityweb",
-        frameworkUrl: buildUrl + "/413cbf3af2b52460361591c00cee38ab.js.unityweb",
-        codeUrl: buildUrl + "/bff85ff388c309c4f0386a7b6d865b8b.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "puzzlegame_telegram",
-        productVersion: "1.0",
-        // showBanner: unityShowBanner,
+        dataUrl: buildUrl + "/cab0ad2b0fcbc26c4e8aa0dbee3757f7.data.unityweb",
+        frameworkUrl: buildUrl + "/6aa083d7d208ca4f8364c3d9e53e4d19.framework.js.unityweb",
+        codeUrl: buildUrl + "/f24a3e240ba5d53feccc209d6fadaca3.wasm.unityweb",
         cacheControl: function(url) {
           // Caching enabled for .data and .bundle files. 
           // Revalidate if file is up to date before loading from cache
-          if (url.match(/\.data/) || url.match(/\.unityweb/) || url.match(/\.bundle/)) {
+          if (url.match(/\.data/) || url.match(/\.unityweb/) || url.match(/\.ab/) || url.match(/\.bundle/)) {
             return "must-revalidate";
           }
   
@@ -264,7 +222,19 @@ export default function Home() {
           // Note: the default browser cache may cache them anyway.
           return "no-store";
         },
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "puzzlegame_telegram",
+        productVersion: "1.0",
+        // showBanner: unityShowBanner,
       };
+
+      // By default Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         h = window.innerHeight;
@@ -294,21 +264,14 @@ export default function Home() {
       var canvas = document.querySelector("#unity-canvas");
       canvas.style.width = w + "px";
       canvas.style.height = h + "px";
-
-      // loadingBar.style.display = "block";
-
+      
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          // progressBarFull.style.width = 100 * progress + "%";
-          console.info("progress: " + 100 * progress + "%");
+          progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
-          window.unityInstance = unityInstance
-          // loadingBar.style.display = "none";
-          // fullscreenButton.onclick = () => {
-          //   unityInstance.SetFullscreen(1);
-          // };
+          window.unityInstance = unityInstance;
           setTimeout(() => {
             closeLoading();
           }, 2000);
