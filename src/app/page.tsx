@@ -202,9 +202,9 @@ export default function Home() {
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/8b13ac280e9fffae9d25d21ee297d34d.loader.js";
       var config = {
-        dataUrl: buildUrl + "/cab0ad2b0fcbc26c4e8aa0dbee3757f7.data.unityweb",
-        frameworkUrl: buildUrl + "/6aa083d7d208ca4f8364c3d9e53e4d19.framework.js.unityweb",
-        codeUrl: buildUrl + "/f24a3e240ba5d53feccc209d6fadaca3.wasm.unityweb",
+        dataUrl: buildUrl + "/aba9b4a8aed4b8f51c3079e8a9b3569d.data.unityweb",
+        frameworkUrl: buildUrl + "/bcb2ba944e2cea6dd52104a6c44eae13.framework.js.unityweb",
+        codeUrl: buildUrl + "/472390ed8ebd1ebd3a18bc1314dd6313.wasm.unityweb",
         cacheControl: function(url) {
           // Caching enabled for .data and .bundle files. 
           // Revalidate if file is up to date before loading from cache

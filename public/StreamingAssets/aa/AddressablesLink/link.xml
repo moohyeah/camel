@@ -14,6 +14,7 @@
     <type fullname="GamePanel" preserve="all" />
     <type fullname="gameroot" preserve="all" />
     <type fullname="HttpManager" preserve="all" />
+    <type fullname="JoinGroupPanel" preserve="all" />
     <type fullname="Leveleditor" preserve="all" />
     <type fullname="LoadEffect" preserve="all" />
     <type fullname="MainMask" preserve="all" />
