@@ -1,5 +1,5 @@
 1:HL["./_next/static/css/53736de54d725423.css","style",{"crossOrigin":""}]
-0:["Xhb8L8Z_sAilftYxZV4yp",[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],"$L2",[[["$","link","0",{"rel":"stylesheet","href":"./_next/static/css/53736de54d725423.css","precedence":"next","crossOrigin":""}]],"$L3"]]]]
+0:["yYVbZX4EKx9msaIW_HHDO",[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],"$L2",[[["$","link","0",{"rel":"stylesheet","href":"./_next/static/css/53736de54d725423.css","precedence":"next","crossOrigin":""}]],"$L3"]]]]
 4:I[6962,["858","static/chunks/337b2d16-5a2724df2c364089.js","366","static/chunks/366-83e435916013ecbf.js","185","static/chunks/app/layout-8c35e54c0bf3a160.js"],"ArweaveWalletKit"]
 5:I[6954,[],""]
 6:I[7264,[],""]
